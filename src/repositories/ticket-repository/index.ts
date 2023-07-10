@@ -4,4 +4,13 @@ async function getTicketTypes() {
     return prisma.ticketType.findMany();
 }
 
-export default { getTicketTypes };
+async function getUserTicket(id: number) {
+    return prisma.ticket.findFirst({
+      where: { enrollmentId: id },
+      include: {
+        TicketType: true
+      },
+    });
+}
+
+export default { getTicketTypes, getUserTicket };
