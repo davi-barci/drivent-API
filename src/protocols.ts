@@ -52,3 +52,18 @@ export type CreateTicket = {
   enrollmentId: number;
   status: TicketStatus;
 }
+
+export type CreatePayment = {
+  ticketId: number;
+  value: number;
+  cardIssuer: string;
+  cardLastDigits: string;
+}
+
+export type PaymentDataCard = {
+  issuer: string;
+  number: number;
+  name: string;
+  expirationDate: Date;
+  cvv: number;
+};

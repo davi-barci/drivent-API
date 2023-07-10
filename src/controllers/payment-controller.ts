@@ -22,3 +22,22 @@ export async function getTicketPayment(req: AuthenticatedRequest, res: Response)
     }
 }
 
+export async function postTicketPayment(req: AuthenticatedRequest, res: Response) {
+    const { userId } = req;
+    const { ticketId, cardData } = req.body;
+
+    try {
+        if (!ticketId || !cardData) return res.sendStatus(httpStatus.BAD_REQUEST);
+
+        const ticketPayment = await paymentService.postTicketPayment(ticketId, userId, cardData);
+        if (!ticketPayment) return res.sendStatus(httpStatus.NOT_FOUND);
+
+        return res.status(httpStatus.OK).send(ticketPayment);
+    } catch (error) {
+        if (error.name === 'UnauthorizedError') {
+            return res.sendStatus(httpStatus.UNAUTHORIZED);
+        }
+        return res.sendStatus(httpStatus.NOT_FOUND);
+    }
+}
+

@@ -1,5 +1,6 @@
 import { prisma } from '@/config';
 import { CreateTicket } from '@/protocols';
+import { TicketStatus } from '@prisma/client';
 
 async function getTicketTypes() {
   return prisma.ticketType.findMany();
@@ -28,4 +29,26 @@ async function getTickeyById(ticketId: number) {
   });
 }
 
-export default { getTicketTypes, getUserTicket, postNewTicket, getTickeyById };
+async function getTicketTypeById(ticketId: number) {
+  return prisma.ticket.findFirst({
+    where: {
+      id: ticketId,
+    },
+    include: {
+      TicketType: true,
+    },
+  });
+}
+
+async function updateTicketPayment(ticketId: number) {
+  return prisma.ticket.update({
+    where: {
+      id: ticketId,
+    },
+    data: {
+      status: TicketStatus.PAID,
+    },
+  });
+}
+
+export default { getTicketTypes, getUserTicket, postNewTicket, getTickeyById, getTicketTypeById, updateTicketPayment };
