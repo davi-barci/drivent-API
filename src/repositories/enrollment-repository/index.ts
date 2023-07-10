@@ -30,6 +30,15 @@ export type UpdateEnrollmentParams = Omit<CreateEnrollmentParams, 'userId'>;
 const enrollmentRepository = {
   findWithAddressByUserId,
   upsert,
+  getEnrollmentById
 };
+
+async function getEnrollmentById(enrollmentId: number) {
+  return prisma.enrollment.findFirst({
+    where: {
+      id: enrollmentId,
+    }
+  });
+}
 
 export default enrollmentRepository;

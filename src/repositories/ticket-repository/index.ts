@@ -2,16 +2,16 @@ import { prisma } from '@/config';
 import { CreateTicket } from '@/protocols';
 
 async function getTicketTypes() {
-    return prisma.ticketType.findMany();
+  return prisma.ticketType.findMany();
 }
 
 async function getUserTicket(id: number) {
-    return prisma.ticket.findFirst({
-      where: { enrollmentId: id },
-      include: {
-        TicketType: true
-      },
-    });
+  return prisma.ticket.findFirst({
+    where: { enrollmentId: id },
+    include: {
+      TicketType: true
+    },
+  });
 }
 
 async function postNewTicket(ticket: CreateTicket) {
@@ -20,4 +20,12 @@ async function postNewTicket(ticket: CreateTicket) {
   });
 }
 
-export default { getTicketTypes, getUserTicket, postNewTicket };
+async function getTickeyById(ticketId: number) {
+  return prisma.ticket.findFirst({
+    where: {
+      id: ticketId,
+    }
+  });
+}
+
+export default { getTicketTypes, getUserTicket, postNewTicket, getTickeyById };

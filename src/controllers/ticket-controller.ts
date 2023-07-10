@@ -4,13 +4,13 @@ import { AuthenticatedRequest } from '@/middlewares';
 import ticketService from '@/services/ticket-service';
 
 export async function getTicketTypes(_req: AuthenticatedRequest, res: Response) {
-    try {
-      const ticketTypes = await ticketService.getTicketType();
+  try {
+    const ticketTypes = await ticketService.getTicketType();
 
-      return res.status(httpStatus.OK).send(ticketTypes);
-    } catch (error) {
-      return res.sendStatus(httpStatus.NO_CONTENT);
-    }
+    return res.status(httpStatus.OK).send(ticketTypes);
+  } catch (error) {
+    return res.sendStatus(httpStatus.NO_CONTENT);
+  }
 }
 
 export async function getTicketByUser(req: AuthenticatedRequest, res: Response) {
@@ -27,7 +27,7 @@ export async function getTicketByUser(req: AuthenticatedRequest, res: Response) 
 
 export async function postNewTicket(req: AuthenticatedRequest, res: Response) {
   const { userId } = req;
-  const { ticketTypeId } = req.body; 
+  const { ticketTypeId } = req.body;
 
   if (!ticketTypeId) return res.sendStatus(httpStatus.BAD_REQUEST);
 
