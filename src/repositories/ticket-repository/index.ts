@@ -1,4 +1,5 @@
 import { prisma } from '@/config';
+import { CreateTicket } from '@/protocols';
 
 async function getTicketTypes() {
     return prisma.ticketType.findMany();
@@ -13,4 +14,10 @@ async function getUserTicket(id: number) {
     });
 }
 
-export default { getTicketTypes, getUserTicket };
+async function postNewTicket(ticket: CreateTicket) {
+  return prisma.ticket.create({
+    data: ticket,
+  });
+}
+
+export default { getTicketTypes, getUserTicket, postNewTicket };
