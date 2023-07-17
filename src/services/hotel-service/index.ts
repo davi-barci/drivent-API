@@ -23,7 +23,7 @@ async function getHotels(userId: number) {
     }
 
     const hotels = await hotelRepository.getHotels();
-    if (hotels.length === 0) {
+    if (!hotels || hotels.length === 0) {
         throw notFoundError();
     }
     return hotels;
@@ -49,9 +49,8 @@ async function getHotelsRooms(userId: number, hotelId: number) {
     }
 
     const hotel = await hotelRepository.getHotelRoomsById(hotelId);
-  
-    if (!hotel) {
-      throw notFoundError();
+    if (!hotel || hotel.Rooms.length === 0) {
+        throw notFoundError();
     }
     return hotel;
 }

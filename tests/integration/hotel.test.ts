@@ -5,6 +5,7 @@ import { cleanDb, generateValidToken } from "../helpers";
 import supertest from "supertest";
 import { createEnrollmentWithAddress, createHotel, createHotelRoom, createPayment, createTicket, createTicketType, createUser } from "../factories";
 import { TicketStatus } from "@prisma/client";
+import * as jwt from 'jsonwebtoken';
 
 beforeAll(async () => {
     await init();
@@ -30,6 +31,15 @@ describe('/GET hotels', () => {
     
         expect(response.status).toBe(httpStatus.UNAUTHORIZED);
     })
+
+    it('401 - No valid session', async () => {
+        const user = await createUser();
+        const userToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
+    
+        const response = await server.get('/hotels').set('Authorization', `Bearer ${userToken}`);
+    
+        expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+    });
 
     describe('if valid token', () => {
         it('200 - get hotels', async () => {
@@ -82,6 +92,28 @@ describe('/GET hotels', () => {
             expect(response.status).toEqual(httpStatus.PAYMENT_REQUIRED);
         });
 
+        it('404 - No user ticket', async () => {
+            const user = await createUser();
+            const userToken = await generateValidToken(user);
+            await createEnrollmentWithAddress(user);
+            
+            const response = await server.get('/hotels').set('Authorization', `Bearer ${userToken}`);
+      
+            expect(response.status).toEqual(httpStatus.NOT_FOUND);
+        });
+
+        it('402 - No paid ticket', async () => {
+            const user = await createUser();
+            const userToken = await generateValidToken(user);
+            const enrollment = await createEnrollmentWithAddress(user);
+            const ticketType = await createTicketType(true);
+            await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
+      
+            const response = await server.get('/hotels').set('Authorization', `Bearer ${userToken}`);
+      
+            expect(response.status).toEqual(httpStatus.PAYMENT_REQUIRED);
+        });
+
         it('404 - No user enrollment', async () => {
             const user = await createUser();
             const userToken = await generateValidToken(user);
@@ -104,6 +136,15 @@ describe('GET /hotels/:hotelId', () => {
         const userToken = faker.lorem.word();
         const response = await server.get('/hotels/1').set('Authorization', `Bearer ${userToken}`);
 
+        expect(response.status).toBe(httpStatus.UNAUTHORIZED);
+    });
+
+    it('401 - No valid session', async () => {
+        const user = await createUser();
+        const userToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET);
+    
+        const response = await server.get('/hotels/1').set('Authorization', `Bearer ${userToken}`);
+    
         expect(response.status).toBe(httpStatus.UNAUTHORIZED);
     });
 
@@ -142,7 +183,7 @@ describe('GET /hotels/:hotelId', () => {
             });
         });
     
-        it('200 - Hotel with no rooms', async () => {
+        it('401 - Hotel with no rooms', async () => {
             const user = await createUser();
             const userToken = await generateValidToken(user);
             const enrollment = await createEnrollmentWithAddress(user);
@@ -154,9 +195,12 @@ describe('GET /hotels/:hotelId', () => {
         
             const response = await server.get(`/hotels/${hotel.id}`).set('Authorization', `Bearer ${userToken}`);
         
-            expect(response.status).toEqual(httpStatus.OK);
+            expect(response.status).toEqual(httpStatus.NOT_FOUND);
         
-            expect(response.body).toEqual({
+            expect(response.body).toEqual(
+                Object.keys(response.body).length === 0 ?
+                {} :
+                {
                 id: hotel.id,
                 name: hotel.name,
                 image: expect.any(String),
@@ -186,6 +230,28 @@ describe('GET /hotels/:hotelId', () => {
             const response = await server.get('/hotels/1').set('Authorization', `Bearer ${userToken}`);
         
             expect(response.status).toEqual(httpStatus.NOT_FOUND);
+        });
+
+        it('404 - No user ticket', async () => {
+            const user = await createUser();
+            const userToken = await generateValidToken(user);
+            await createEnrollmentWithAddress(user);
+      
+            const response = await server.get('/hotels/1').set('Authorization', `Bearer ${userToken}`);
+      
+            expect(response.status).toEqual(httpStatus.NOT_FOUND);
+        });
+
+        it('402 - No paid ticket', async () => {
+            const user = await createUser();
+            const userToken = await generateValidToken(user);
+            const enrollment = await createEnrollmentWithAddress(user);
+            const ticketType = await createTicketType(true);
+            await createTicket(enrollment.id, ticketType.id, TicketStatus.RESERVED);
+      
+            const response = await server.get('/hotels/1').set('Authorization', `Bearer ${userToken}`);
+      
+            expect(response.status).toEqual(httpStatus.PAYMENT_REQUIRED);
         });
 
         it('404 - Invalid hotel id', async () => {
