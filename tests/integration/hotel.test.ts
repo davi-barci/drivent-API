@@ -56,7 +56,7 @@ describe('/GET hotels', () => {
             ]);
         });
 
-        it('200 - Empty array', async () => {
+        it('404 - Not found hotels', async () => {
             const user = await createUser();
             const userToken = await generateValidToken(user);
             const enrollment = await createEnrollmentWithAddress(user);
@@ -66,8 +66,8 @@ describe('/GET hotels', () => {
       
             const response = await server.get('/hotels').set('Authorization', `Bearer ${userToken}`);
       
-            expect(response.status).toEqual(httpStatus.OK);
-            expect(response.body).toEqual([]);
+            expect(response.status).toEqual(httpStatus.NOT_FOUND);
+            expect(response.body).toEqual({});
         });
 
         it('402 - Remote user ticket', async () => {
