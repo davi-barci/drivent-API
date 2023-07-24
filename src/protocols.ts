@@ -1,4 +1,4 @@
-import { TicketStatus } from "@prisma/client";
+import { TicketStatus, Booking } from "@prisma/client";
 
 export type ApplicationError = {
   name: string;
@@ -67,3 +67,5 @@ export type PaymentDataCard = {
   expirationDate: Date;
   cvv: number;
 };
+
+export type CreateBooking = Omit<Booking, 'id' | 'createdAt' | 'updatedAt'>;
