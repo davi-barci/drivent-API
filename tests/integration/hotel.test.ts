@@ -183,7 +183,7 @@ describe('GET /hotels/:hotelId', () => {
             });
         });
     
-        it('401 - Hotel with no rooms', async () => {
+        it('404 - Hotel with no rooms', async () => {
             const user = await createUser();
             const userToken = await generateValidToken(user);
             const enrollment = await createEnrollmentWithAddress(user);
