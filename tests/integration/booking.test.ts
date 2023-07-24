@@ -154,10 +154,11 @@ describe('POST /booking', () => {
 
         it('403 - Not ticket enrollment', async () => {
             const user = await createUser();
+            const otherUser = await createUser();
             const userToken = await generateValidToken(user);
-            const enrollment = await createEnrollmentWithAddress(user);
+            const enrollment = await createEnrollmentWithAddress(otherUser);
             const ticketType = await createTicketType(false, true);
-            await createTicket(enrollment.id+1, ticketType.id, TicketStatus.PAID);
+            await createTicket(enrollment.id, ticketType.id, TicketStatus.PAID);
       
             const hotel = await createHotel();
             const room = await createHotelRoom(hotel.id);
@@ -331,13 +332,12 @@ describe('UPDATE /booking', () => {
             await createPayment(ticket.id, ticketType.price);
       
             const hotel = await createHotel();
-            const room = await createHotelRoom(hotel.id);
             const currentRoom = await createHotelRoom(hotel.id);
             const booking = await createBooking({userId: user.id, roomId: currentRoom.id});
             await createBooking({userId: user.id, roomId: currentRoom.id});
             await createBooking({userId: user.id, roomId: currentRoom.id});
       
-            const response = await server.put(`/booking/${booking.id}`).set('Authorization', `Bearer ${userToken}`).send({roomId: room.id});
+            const response = await server.put(`/booking/${booking.id}`).set('Authorization', `Bearer ${userToken}`).send({roomId: currentRoom.id});
       
             expect(response.status).toEqual(httpStatus.FORBIDDEN);
         });
